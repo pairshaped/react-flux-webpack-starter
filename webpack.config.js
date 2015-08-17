@@ -1,4 +1,5 @@
-var webpack = require("webpack");
+var webpack = require('webpack');
+var path = require('path')
 
 var devServerPort = process.env.PORT || 8080;
 
@@ -30,11 +31,11 @@ module.exports = {
     new webpack.ProvidePlugin({
       "_": "lodash",
       "React": "react/addons",
-      "React.createComponent": "./assets/scripts/lib/_react_component.coffee"
+      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
       "RouterMini": "react-mini-router",
+      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
       "Flux": "flux",
-      "Bemmer": "bemmer-node/bemmer-class",
-      "bemmer": "bemmer-node"
+      "Bemmer": "bemmer-node/bemmer-class"
     })
   ],
   devServer: {

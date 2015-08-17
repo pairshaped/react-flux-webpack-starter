@@ -1,4 +1,10 @@
 
+#
+# TODO:
+#   Routes should get a reference to the Router they are being added to
+#   Test it
+#
+
 class Route
   constructor: (@path, @callback) ->
     @identifier = _.kebabCase(
@@ -14,13 +20,21 @@ class RouteNotFound extends Route
 
     @identifier = 'notFound'
 
+
+class RouteNamespace extends Route
+  constructor: (path, callback) ->
+    super path, ->
+      new Router path, callback
+
 class Router
-  constructor: (basePath) ->
+  constructor: (@basePath, callback) ->
     @mixins = []
     @props = {
       history: true
     }
     @routes = []
+
+    callback.call(@)
 
   buildRouterComponent: ->
     specs = {

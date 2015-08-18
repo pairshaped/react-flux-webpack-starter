@@ -1,16 +1,20 @@
-var webpack = require("webpack");
+var Webpack = require('webpack');
+var path = require('path')
 
-var devServerPort = process.env.PORT || 8080;
+var mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee')
+var webpackPaths = require('./config/webpack.paths.coffee')
 
 module.exports = {
+  devtool: 'source-map',
+
   entry: [
     "font-awesome-webpack!./font-awesome.config.js",
-    "assets/scripts/index.coffee"
+    mainPath
   ],
   output: {
-    path: "./build",
-    publicPath: "/build",
-    filename: "bundle.js"
+    path: webpackPaths.buildPath,
+    publicPath: webpackPaths.publicPath,
+    filename: webpackPaths.bundleName
   },
 
   module: {
@@ -30,11 +34,11 @@ module.exports = {
     new webpack.ProvidePlugin({
       "_": "lodash",
       "React": "react/addons",
-      "React.createComponent": "./assets/scripts/lib/_react_component.coffee"
+      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
       "RouterMini": "react-mini-router",
+      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
       "Flux": "flux",
-      "Bemmer": "bemmer-node/bemmer-class",
-      "bemmer": "bemmer-node"
+      "Bemmer": "bemmer-node/bemmer-class"
     })
   ]
 };

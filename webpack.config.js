@@ -1,17 +1,24 @@
-var webpack = require('webpack');
+var Webpack = require('webpack');
 var path = require('path')
+
+var mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee')
+var webpackPaths = require('./config/webpack.paths.js')
 
 var devServerPort = process.env.PORT || 8080;
 
 module.exports = {
+  context: __dirname,
+  devtool: 'eval-source-map',
+
   entry: [
     "font-awesome-webpack!./font-awesome.config.js",
-    "assets/scripts/index"
+    mainPath
   ],
+
   output: {
-    path: "./build",
-    publicPath: "/build",
-    filename: "bundle.js"
+    path: webpackPaths.buildPath,
+    publicPath: webpackPaths.publicPath,
+    filename: webpackPaths.bundleName
   },
 
   module: {
@@ -24,11 +31,13 @@ module.exports = {
       { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" }
     ]
   },
+
   resolve: {
     extensions: ["", ".js", ".coffee", ".sass"]
   },
+
   plugins: [
-    new webpack.ProvidePlugin({
+    new Webpack.ProvidePlugin({
       "_": "lodash",
       "React": "react/addons",
       "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
@@ -36,12 +45,14 @@ module.exports = {
       "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
       "Flux": "flux",
       "Bemmer": "bemmer-node/bemmer-class"
-    })
+    }),
+    new Webpack.HotModuleReplacementPlugin()
   ],
+
   devServer: {
     port: devServerPort,
     historyApiFallback: {
-      index: "/index.html"
+      index: "public/index.html"
     }
   }
 };

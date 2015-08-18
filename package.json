@@ -14,11 +14,19 @@
     "css-loader": "^0.9.1",
     "json-loader": "^0.5.2",
     "sass-loader": "^1.0.2",
+
+    "http-proxy": "~1.11.1",
+    "express": "~4.7.2",
+
     "lodash": "^3.1.0",
+
     "react": "^0.13.3",
     "react-mini-router": "^1.1.7",
+
     "flux": "^2.0.3",
+
     "bemmer-node": "^0.1.2"
+
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
@@ -30,7 +38,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack-dev-server --devtool eval --progress --colors --host 0.0.0.0",
+    "webpack:development": "webpack-dev-server --hot --inline --progress --colors",
+    "start": "node server",
     "build": "webpack -p --config webpack.production.config.js"
   },
   "author": "Alex Barry, Josh Teeter",

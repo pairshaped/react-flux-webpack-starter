@@ -1,5 +1,5 @@
 require('../styles/index.sass')
 
-require('dispatcher')
-require('router')
+require('./dispatcher')
+require('./router')
 

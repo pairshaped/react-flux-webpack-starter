@@ -1,20 +1,21 @@
 
-{ Router, Route, RouteNotFound, RouteNamespace } = RouterWrapper
+{ Router } = RouterWrapper
 
-router = new Router '/', ->
+router = new Router ->
   @setProp('history', true)
 
-  @addDefaultRoute ->
+  @rootTo ->
     React.DOM.div {}, 'Parent Route'
 
-  @addRoute new Route 'test/:id', (id) ->
-    React.DOM.div {}, "Test page with id #{id}"
+  @match 'test/:id', (id) ->
+    React.DOM.div {},
+      'Test page with id'
+      id.toString()
 
-  @addRoute new RouteNotFound ->
-    React.DOM.div {}, '404 Page Not Found'
+  @notFound (path) ->
+    React.DOM.div {},
+      '404 File Not Found'
+      path
 
-  @addRoute new RouteNamespace 'namespace', ->
-    @addRoute new Route 'test/:id', (id) ->
-      React.DOM.div {}, "Namespaced test papge with id #{id}"
+router.mount(document.getElementById('react__entry'))
 
-router.mount('#react__entry')

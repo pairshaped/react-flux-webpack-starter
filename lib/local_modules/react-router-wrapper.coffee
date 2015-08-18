@@ -1,51 +1,100 @@
 
 #
 # TODO:
-#   Routes should get a reference to the Router they are being added to
-#   Test it
+#   1. Jest Tests
+#   2. Namespaced Routes, ie:
+#     /namespace
+#       /one
+#       /two
+#
+#     rather than:
+#
+#     /namespace/one
+#     /namespace/two
 #
 
+path = require('path')
+
 class Route
-  constructor: (@path, @callback) ->
-    @identifier = _.kebabCase(
-      path
-        .replace(':', '_')
-        .replace('/', '_')
-        .replace('-', '_')
-    ) + "#{Date.now()}"
+  constructor: (router, routePath, callback) ->
+    throw new Error('Path is not a valid string') unless _.isString(routePath)
+    throw new Error('Callback is not a function') unless _.isFunction(callback)
+    @path = @fullPath()
+    @identifier = _.camelCase(
+      @path.replace(/[-\/:]/g, '_')
+    )
+    @callback = _.bind(callback, router)
+
+  fullPath: (router, p) ->
+    path.join(router.getPath(), p)
+
 
 class RouteNotFound extends Route
-  constructor: (callback) ->
-    super(null, callback)
+  constructor: (router, callback) ->
+    throw new Error('Callback is not a function') unless _.isFunction(callback)
 
     @identifier = 'notFound'
+    @callback = _.bind(callback, router)
 
-
-class RouteNamespace extends Route
-  constructor: (path, callback) ->
-    super path, ->
-      new Router path, callback
 
 class Router
-  constructor: (@basePath, callback) ->
+  constructor: ->
+    @parent = null
+    @basePath = null
+
     @mixins = []
-    @props = {
-      history: true
-    }
+    @props = history: true
     @routes = []
 
+    @processArguments(arguments)
+
+
+  processArguments: (args) ->
+    if args.length == 3 then @processThreeArgs(args)
+    else if args.length == 2 then @processTwoArgs(args)
+    else if args.length == 1 then @processOneArg(args)
+    else throw new Error('Invalid arguments given for class Router')
+
+  processThreeArgs: (args) ->
+    @validateAndSetParent(args[0])
+    @validateAndSetBasePath(args[1])
+    @validateAndCallCallback(args[2])
+
+  processTwoArgs: (args) ->
+    @validateAndSetBasePath(args[0])
+    @validateAndCallCallback(args[1])
+
+  processOneArg: (args) ->
+    @basePath = ''
+    @validateAndCallCallback(args[0])
+
+
+  validateAndSetParent: (parent) ->
+    unless parent instanceof Router
+      throw new Error('Parent is not class Router')
+    @parent = parent
+
+  validateAndSetBasePath: (basePath) ->
+    unless basePath instanceof String
+      throw new Error('Basepath is not a string')
+    @basePath = basePath
+
+  validateAndCallCallback: (callback) ->
+    unless callback instanceof Function
+      throw new Error('Callback is not a function')
     callback.call(@)
+
+
+  getPath: ->
+    @basePath
+
 
   buildRouterComponent: ->
     specs = {
       displayName: 'ApplicationRoot'
-
-      mixins: [ReactMiniRouter.RouterMixin].concat(@mixins)
-
+      mixins: _.uniq([RouterMini.RouterMixin].concat(@mixins))
       routes: @_routesArray()
-
-      render: ->
-        @renderCurrentRoute()
+      render: -> @renderCurrentRoute()
     }
 
     @_mapRoutesTo specs, @routes
@@ -53,8 +102,7 @@ class Router
     specs
 
   _routesArray: ->
-    routesWithAPath = _.select @routes, (route) ->
-      !!route.path
+    routesWithAPath = _.select @routes, (route) -> !!route.path
 
     _.reduce routesWithAPath, ((routes, route) ->
       routes[route.path] = route.identifier
@@ -67,8 +115,9 @@ class Router
     specs
 
   _mapRouteRenderMethodTo: (specs, route) ->
-    spec[route.identifier] = _.bind(route.callback, @)
-    spec
+    specs[route.identifier] = _.bind(route.callback, @)
+    specs
+
 
   setProp: (field, value) ->
     @props[field] = value
@@ -76,11 +125,26 @@ class Router
   getProp: (field) ->
     @props[field]
 
-  addDefaultRoute: (callback) ->
-    @addRoute new Route '', callback
+
+  rootTo: (callback) ->
+    @match '/', callback
+
+  match: (path, callback) ->
+    @addRoute new Route(@, path, callback)
+
+  notFound: (callback) ->
+    @addRoute new RouteNotFound(@, callback)
+
+  namespace: (namespacePath, callback) ->
+    new Router(
+      @
+      path.join(@basePath, namespacePath)
+      callback
+    )
 
   addRoute: (route) ->
-    throw new Error() unless route instanceof Route
+    unless route instanceof Route
+      throw new Error('addRoute expects `route` to be of type Route')
     @routes.push route
 
   addMixins: (mixin) ->
@@ -88,11 +152,14 @@ class Router
 
   mount: (domTarget) ->
     specs = @buildRouterComponent()
-    React.render(specs, domTarget)
+    console.log 'ReactRouterWrapper.mount', specs
+    app = React.createClass specs
+    React.render(React.createElement(app, @props), domTarget)
 
 
 module.exports =
   Route: Route
   RouteNotFound: RouteNotFound
+  RouteNamespace: RouteNamespace
   Router: Router
 

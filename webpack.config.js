@@ -1,10 +1,8 @@
-var Webpack = require('webpack');
-var path = require('path')
-
-var mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee')
-var webpackPaths = require('./config/webpack.paths.js')
-
-var devServerPort = process.env.PORT || 8080;
+var Webpack = require('webpack'),
+    path = require('path'),
+    mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee'),
+    webpackPaths = require('./config/webpack.paths.js'),
+    devServerPort = process.env.PORT || 8080;
 
 module.exports = {
   context: __dirname,
@@ -46,6 +44,7 @@ module.exports = {
       "Flux": "flux",
       "Bemmer": "bemmer-node/bemmer-class"
     }),
+
     new Webpack.HotModuleReplacementPlugin()
   ],
 

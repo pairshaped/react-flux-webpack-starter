@@ -14,4 +14,13 @@ Build production javascript bundle
 
     $ npm run build
 
+# Testing with Karma
+
+Install `karma-cli` (optional, may require sudo)
+
+    $ npm install -g karma-cli
+
+Run the tests
+
+    $ karma start
 

@@ -38,11 +38,13 @@ module.exports = {
     new Webpack.ProvidePlugin({
       "_": "lodash",
       "React": "react/addons",
-      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
       "RouterMini": "react-mini-router",
-      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
       "Flux": "flux",
-      "Bemmer": "bemmer-node/bemmer-class"
+      "Bemmer": "bemmer-node/bemmer-class",
+
+      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
+      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
+      "Module": path.resolve(__dirname, 'lib', 'local_modules', 'class-module')
     }),
 
     new Webpack.HotModuleReplacementPlugin()

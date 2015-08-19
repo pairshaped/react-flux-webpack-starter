@@ -16,8 +16,6 @@
     "css-loader": "^0.9.1",
     "json-loader": "^0.5.2",
     "sass-loader": "^1.0.2",
-    "http-proxy": "~1.11.1",
-    "express": "~4.7.2",
     "lodash": "^3.1.0",
     "react": "^0.13.3",
     "react-mini-router": "^1.1.7",
@@ -39,7 +37,6 @@
   "scripts": {
     "test": "",
     "webpack:development": "webpack-dev-server --hot --inline --progress --colors",
-    "start": "node server",
     "build": "webpack -p --config webpack.production.config.js"
   }
 }

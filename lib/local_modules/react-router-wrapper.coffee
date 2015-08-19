@@ -28,6 +28,9 @@ class Route
   fullPath: (router, p) ->
     path.join(router.getPath(), p)
 
+  toMappedRoute: ->
+    "#{@path}": @identifier
+
 
 class RouteNotFound extends Route
   constructor: (router, callback) ->
@@ -37,63 +40,77 @@ class RouteNotFound extends Route
     @callback = _.bind(callback, router)
 
 
-class Router
-  constructor: ->
-    @parent = null
-    @basePath = null
+class Routable
+  @normalize: (paths) ->
+    pathStr = paths
+    pathStr = path.join('/') if paths instanceof Array
+    path.normalize(pathStr.join('/'))
 
-    @mixins = []
-    @props = history: true
+  constructor: (@basePath, @routerBlock) ->
+    @validateBasePath(@basePath)
+    @validateRouterBlock(@routerBlock)
     @routes = []
 
-    @processArguments(arguments)
+  validateBasePath: (basePath) ->
+    unless _.isString(basePath)
+      throw new Error('Routable expects basePath to be a string')
+
+  validateRouterBlock: (routerBlock) ->
+    unless _.isFunction(routerBlock)
+      throw new Error('Routable expects routerBlock to be a function')
+
+  doBlockIfAvailable: ->
+    @routerBlock.call(@) if @routerBlock && _.isFunction(@routerBlock)
+
+  rootTo: (callback) ->
+    @match '/', callback
+
+  match: (path, callback) ->
+    @addRoute new Route(@, Routable.normalize([@basePath, path]), callback)
+
+  notFound: (callback) ->
+    @addRoute new RouteNotFound(@, callback)
+
+  addRoute: (route) ->
+    unless route instanceof Route
+      throw new Error('addRoute expects `route` to be of type Route')
+    @routes.push route
+
+  toRoutes: ->
+    routes = {}
+    _.each @, (route) ->
+      mappedRoute = route.toMappedRoute()
+      routes = _.extend {}, routes, mappedRoute
+    routes
 
 
-  processArguments: (args) ->
-    if args.length == 3 then @processThreeArgs(args)
-    else if args.length == 2 then @processTwoArgs(args)
-    else if args.length == 1 then @processOneArg(args)
-    else throw new Error('Invalid arguments given for class Router')
+class SubRouter extends Routable
+  @extend Route
 
-  processThreeArgs: (args) ->
-    @validateAndSetParent(args[0])
-    @validateAndSetBasePath(args[1])
-    @validateAndCallCallback(args[2])
+  constructor: (@parent, path, callback) ->
+    super(path.join(@parent.baseUrl, path), callback)
+    @routes = new RouteCollection()
 
-  processTwoArgs: (args) ->
-    @validateAndSetBasePath(args[0])
-    @validateAndCallCallback(args[1])
+    @doBlockIfAvailable()
 
-  processOneArg: (args) ->
-    @basePath = ''
-    @validateAndCallCallback(args[0])
+  toMappedRoute: ->
+    routes = {}
 
 
-  validateAndSetParent: (parent) ->
-    unless parent instanceof Router
-      throw new Error('Parent is not class Router')
-    @parent = parent
+class Router extends Routable
+  constructor: (basePath, block) ->
+    super(basePath, block)
+    @mixins = []
+    @props = history: true
+    @routes = new RouteCollection()
 
-  validateAndSetBasePath: (basePath) ->
-    unless basePath instanceof String
-      throw new Error('Basepath is not a string')
-    @basePath = basePath
-
-  validateAndCallCallback: (callback) ->
-    unless callback instanceof Function
-      throw new Error('Callback is not a function')
-    callback.call(@)
-
-
-  getPath: ->
-    @basePath
-
+    @doBlockIfAvailable()
 
   buildRouterComponent: ->
     specs = {
       displayName: 'ApplicationRoot'
       mixins: _.uniq([RouterMini.RouterMixin].concat(@mixins))
-      routes: @_routesArray()
+      routes: @routes.toRoutes()
       render: -> @renderCurrentRoute()
     }
 
@@ -101,51 +118,11 @@ class Router
 
     specs
 
-  _routesArray: ->
-    routesWithAPath = _.select @routes, (route) -> !!route.path
-
-    _.reduce routesWithAPath, ((routes, route) ->
-      routes[route.path] = route.identifier
-      routes
-    ), {}
-
-  _mapRoutesTo: (specs, routes) ->
-    _.each routes, (route) =>
-      specs = @_mapRouteRenderMethodTo specs, route
-    specs
-
-  _mapRouteRenderMethodTo: (specs, route) ->
-    specs[route.identifier] = _.bind(route.callback, @)
-    specs
-
-
   setProp: (field, value) ->
     @props[field] = value
 
   getProp: (field) ->
     @props[field]
-
-
-  rootTo: (callback) ->
-    @match '/', callback
-
-  match: (path, callback) ->
-    @addRoute new Route(@, path, callback)
-
-  notFound: (callback) ->
-    @addRoute new RouteNotFound(@, callback)
-
-  namespace: (namespacePath, callback) ->
-    new Router(
-      @
-      path.join(@basePath, namespacePath)
-      callback
-    )
-
-  addRoute: (route) ->
-    unless route instanceof Route
-      throw new Error('addRoute expects `route` to be of type Route')
-    @routes.push route
 
   addMixins: (mixin) ->
     @mixins = @mixins.concat(mixin)
@@ -158,8 +135,6 @@ class Router
 
 
 module.exports =
-  Route: Route
-  RouteNotFound: RouteNotFound
-  RouteNamespace: RouteNamespace
   Router: Router
+  SubRouter: SubRouter
 

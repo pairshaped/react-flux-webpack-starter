@@ -163,5 +163,8 @@ describe 'react-router-wrapper/route.coffee', ->
       methodName = Route.generateRenderMethodName('foo')
       expect(methodName).to.equal('renderFoo')
 
+    xit 'should camel case through "/"s', ->
+      expect().fail()
+
 
 

@@ -14,13 +14,13 @@ Build production javascript bundle
 
     $ npm run build
 
-# Testing with Karma
+# Unit Testing
 
 Install `karma-cli` (optional, may require sudo)
 
-    $ npm install -g karma-cli
+    $ npm install -g mocha
 
 Run the tests
 
-    $ karma start
+    $ npm test
 

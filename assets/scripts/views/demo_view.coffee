@@ -1,6 +1,6 @@
 
 module.exports = Component.create
-  displayName: 'DemoPresenter'
+  displayName: 'Views:Demo'
 
   render: ->
     React.DOM.div {}, 'Dummy Component...'

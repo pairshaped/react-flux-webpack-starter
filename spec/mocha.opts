@@ -1,0 +1,5 @@
+--ui bdd
+--recursive
+--inline-diffs
+--compilers coffee:coffee-script/register
+--no-colors

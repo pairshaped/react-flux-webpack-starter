@@ -4,15 +4,21 @@ normalizeUrl = require('normalizeurl')
 module.exports = class Route
   @normalizePath: (path) ->
     return path if path == ''
-    console.log 'Route.normalizePath', path
     path = "/#{path}" if (path.length > 0) && path[0] != '/'
     normalizeUrl(path)
 
-  constructor: (@parent = null, relativePath = '/') ->
-    console.log 'Route.new', relativePath
+  @generateRenderMethodName: (path) ->
+    pathSegments = path.split('/').map (segment) ->
+      segment[0].toUpperCase() + segment.slice(1)
+
+    'render' + pathSegments.join('')
+
+  constructor: (@parent = null, relativePath = '/', @onPathHitCallback = null) ->
     typeOfPath = typeof(relativePath)
     if ['number', 'object', 'function'].indexOf(typeOfPath) >= 0
-      throw new Error("Route.new: expected relativePath to be a string, got a #{typeOfPath}: #{relativePath}.")
+      throw new Error(
+        "Route.new: expected relativePath to be a string, got a #{typeOfPath}: #{relativePath}."
+      )
 
     @relativePath = Route.normalizePath(relativePath)
 
@@ -29,7 +35,9 @@ module.exports = class Route
 
   hasMatchingRoute: (matchRoute) ->
     unless matchRoute instanceof Route
-      throw new Error("Route.hasMatchingRoute: expected matchRoute to be a Route, got a #{typeof(matchRoute)}.")
+      throw new Error(
+        "Route.hasMatchingRoute: expected matchRoute to be a Route, got a #{typeof(matchRoute)}."
+      )
 
     for route in @children
       isRoute = matchRoute == route

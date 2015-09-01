@@ -14,7 +14,7 @@ describe 'react-router-wrapper/route.coffee', ->
     it 'should prepend a "/" when a string without a prefixed "/" is passed', ->
       expect(Route.normalizePath('foo')).to.equal('/foo')
 
-  context 'constructor(path, callback)', ->
+  context 'constructor(parent, relativePath, onPathHitCallback)', ->
     context 'when creating a route with all default parameters', ->
       route = null
 
@@ -62,6 +62,11 @@ describe 'react-router-wrapper/route.coffee', ->
           child = new Route(parent, 'bar')
           expect(child.path).to.equal('/foo/bar')
 
+    context 'when setting onPathHitCallback', ->
+      it 'should set @onPathHitCallback', ->
+        route = new Route null, 'foo', -> console.log('Route foo HIT!')
+        expect(route.onPathHitCallback).to.be.ok()
+
   context '_add(route)', ->
     context 'incorrectly', ->
       ['foo', 0, new Array(), new Object()].forEach (value) ->
@@ -103,8 +108,8 @@ describe 'react-router-wrapper/route.coffee', ->
         expect(route.children.length).to.equal(1)
 
       it 'should return false on any paths that already exist', ->
-        new Route('test', route)
-        expect(route._add new Route(null, 'test')).to.equal(false)
+        new Route(route, 'test')
+        expect(route._add(new Route(null, 'test'))).to.equal(false)
 
   context 'hasMatchingRoute(matchRoute)', ->
     route = null
@@ -116,7 +121,7 @@ describe 'react-router-wrapper/route.coffee', ->
       expect(-> route.hasMatchingRoute('foo')).to.throwException()
 
     it 'should return false when there are no child routes', ->
-      fooRoute = new Route('foo')
+      fooRoute = new Route(null, 'foo')
       expect(route.hasMatchingRoute(fooRoute)).to.equal(false)
 
     it 'should return false when there are child routes but none matching', ->
@@ -148,5 +153,15 @@ describe 'react-router-wrapper/route.coffee', ->
       new Route(route, 'bar')
       new Route(route, 'baz')
       expect(route.hasMatchingPath('baz')).to.equal(true)
+
+  context 'generateRenderMethodName', ->
+    it 'should always prefix a method with render', ->
+      methodName = Route.generateRenderMethodName('foo')
+      expect(methodName.substr(0, 6)).to.equal('render')
+
+    it 'should camel case the passed with with render', ->
+      methodName = Route.generateRenderMethodName('foo')
+      expect(methodName).to.equal('renderFoo')
+
 
 

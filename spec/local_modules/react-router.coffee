@@ -40,6 +40,9 @@ describe 'react-router-wrapper/route.coffee', ->
           it 'should throw when a number is passed', ->
             expect(-> new Route(null, value)).to.throwException()
 
+        xit 'should throw if the path has any "/"s', ->
+          expect().fail()
+
       context 'correctly', ->
         it 'should not throw when a string is passed', ->
           expect(-> new Route(null, '/')).to.not.throwException()

@@ -5,8 +5,8 @@ expect = require('expect.js')
 
 describe 'react-router-wrapper/route.coffee', ->
   context 'Router.normalizePath(path)', ->
-    it 'should return a blank string if a blank string is passed', ->
-      expect(Route.normalizePath('')).to.equal('')
+    it 'should return a single slash string if a blank string is passed', ->
+      expect(Route.normalizePath('')).to.equal('/')
 
     it 'should return the passed string if a string with a prefixed "/" is passed', ->
       expect(Route.normalizePath('/foo')).to.equal('/foo')
@@ -40,20 +40,16 @@ describe 'react-router-wrapper/route.coffee', ->
           it 'should throw when a number is passed', ->
             expect(-> new Route(null, value)).to.throwException()
 
-        xit 'should throw if the path has any "/"s', ->
-          expect().fail()
+        it 'should throw if the path has any "/"s', ->
+          expect(-> new Route(null, 'foo/bar')).to.throwException()
 
       context 'correctly', ->
         it 'should not throw when a string is passed', ->
-          expect(-> new Route(null, '/')).to.not.throwException()
+          expect(-> new Route(null, 'foobar')).to.not.throwException()
 
         it 'should normalize a @path to be prefixed with a "/" when it is not empty', ->
           route = new Route(null, 'foo')
           expect(route.path).to.equal('/foo')
-
-        it 'should not prefix an empty @path string', ->
-          route = new Route(null, '')
-          expect(route.path).to.equal('')
 
         it 'should correctly set @path from the parent', ->
           parent = new Route(null, 'foo')
@@ -89,11 +85,11 @@ describe 'react-router-wrapper/route.coffee', ->
         route = new Route()
 
       it 'should accept another route', ->
-        childRoute = new Route(null, '/test')
+        childRoute = new Route(null, 'test')
         expect(-> route._add(childRoute)).to.not.throwException()
 
       it 'should add the route to .children', ->
-        route._add new Route(null, '/test')
+        route._add new Route(null, 'test')
         expect(route.children.length).to.equal(1)
 
       it 'should return false when routes that have already been added are added a second time', ->

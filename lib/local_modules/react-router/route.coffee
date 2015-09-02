@@ -75,7 +75,8 @@ module.exports = class Route
   toRoutesLookup: (routes = {}) ->
     @_routesIsAnObject(routes)
     routes[@path] = @toRenderMethodName()
-    routes = route.toRoutesLookup(routes) for route in @children
+    for route in @children
+      routes = route.toRoutesLookup(routes)
     routes
 
   _routesIsAnObject: (routes) ->

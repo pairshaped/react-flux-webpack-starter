@@ -1,8 +1,8 @@
 var Webpack = require('webpack');
 var path = require('path')
 
-var mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee')
-var webpackPaths = require('./config/webpack.paths.coffee')
+var mainPath = path.resolve(__dirname, '..', 'assets', 'scripts', 'index.coffee')
+var webpackPaths = require('./webpack.paths.coffee')
 
 module.exports = {
   devtool: 'source-map',
@@ -34,9 +34,9 @@ module.exports = {
     new webpack.ProvidePlugin({
       "_": "lodash",
       "React": "react/addons",
-      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
+      "Component": path.resolve(__dirname, '..', 'lib', 'local_modules', 'react-component.coffee'),
       "RouterMini": "react-mini-router",
-      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
+      "RouterWrapper": path.resolve(__dirname, '..', 'lib', 'local_modules', 'react-router-wrapper.coffee'),
       "Flux": "flux",
       "Bemmer": "bemmer-node/bemmer-class"
     })

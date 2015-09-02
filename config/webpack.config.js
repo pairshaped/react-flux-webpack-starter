@@ -1,7 +1,7 @@
 var Webpack = require('webpack'),
     path = require('path'),
-    mainPath = path.resolve(__dirname, 'assets', 'scripts', 'index.coffee'),
-    webpackPaths = require('./config/webpack.paths.js'),
+    mainPath = path.resolve(__dirname, '..', 'assets', 'scripts', 'index.coffee'),
+    webpackPaths = require('./webpack.paths.js'),
     devServerPort = process.env.PORT || 8080;
 
 module.exports = {
@@ -42,9 +42,9 @@ module.exports = {
       "Flux": "flux",
       "Bemmer": "bemmer-node/bemmer-class",
 
-      "Component": path.resolve(__dirname, 'lib', 'local_modules', 'react-component.coffee'),
-      "RouterWrapper": path.resolve(__dirname, 'lib', 'local_modules', 'react-router-wrapper.coffee'),
-      "Module": path.resolve(__dirname, 'lib', 'local_modules', 'class-module')
+      "Component": path.resolve(__dirname, '..', 'lib', 'local_modules', 'react-component.coffee'),
+      "RouterWrapper": path.resolve(__dirname, '..', 'lib', 'local_modules', 'react-router-wrapper.coffee'),
+      "Module": path.resolve(__dirname, '..', 'lib', 'local_modules', 'class-module')
     }),
 
     new Webpack.HotModuleReplacementPlugin()

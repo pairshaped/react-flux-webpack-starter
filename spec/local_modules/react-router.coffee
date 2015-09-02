@@ -154,17 +154,47 @@ describe 'react-router-wrapper/route.coffee', ->
       new Route(route, 'baz')
       expect(route.hasMatchingPath('baz')).to.equal(true)
 
-  context 'generateRenderMethodName', ->
+  context 'toRenderMethodName', ->
+    route = null
+
+    beforeEach ->
+      route = new Route(null, 'foo')
+
     it 'should always prefix a method with render', ->
-      methodName = Route.generateRenderMethodName('foo')
+      methodName = route.toRenderMethodName()
       expect(methodName.substr(0, 6)).to.equal('render')
 
     it 'should camel case the passed with with render', ->
-      methodName = Route.generateRenderMethodName('foo')
+      methodName = route.toRenderMethodName()
       expect(methodName).to.equal('renderFoo')
 
-    xit 'should camel case through "/"s', ->
-      expect().fail()
+    it 'should camel case through "/"s', ->
+      child = new Route(route, 'bar')
+      methodName = child.toRenderMethodName()
+      expect(methodName).to.equal('renderFooBar')
 
+  context 'toRoutesLookup', ->
+    route = null
+
+    beforeEach ->
+      route = new Route(null, 'foo')
+
+    it 'should return an object that has a key equal to @path', ->
+      routes = route.toRoutesLookup()
+      expect(routes[route.path]).to.not.be(undefined)
+
+    it 'should return an object where the value at key [@path] is equal to @toRenderMethodName', ->
+      routes = route.toRoutesLookup()
+      expect(routes[route.path]).to.equal(route.toRenderMethodName())
+
+    it 'should return routeLookups with any nested routes', ->
+      child1 = new Route(route, 'bar')
+      child2 = new Route(route, 'baz')
+      routes = route.toRoutesLookup()
+      expect(Object.keys(routes).length).to.equal(3)
+
+    ['foo', 123, new Array(), []].forEach (value) ->
+      it "should not be able to accept a #{typeof(value)}", ->
+        expect(route.toRoutesLookup).withArgs(value).to.throwException(/expected routes to be an object/)
 
 

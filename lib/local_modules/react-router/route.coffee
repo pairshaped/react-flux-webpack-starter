@@ -7,12 +7,6 @@ module.exports = class Route
     path = "/#{path}" if (path.length > 0) && path[0] != '/'
     normalizeUrl(path)
 
-  @generateRenderMethodName: (path) ->
-    pathSegments = path.split('/').map (segment) ->
-      segment[0].toUpperCase() + segment.slice(1)
-
-    'render' + pathSegments.join('')
-
   constructor: (@parent = null, relativePath = '/', @onPathHitCallback = null) ->
     typeOfPath = typeof(relativePath)
     if ['number', 'object', 'function'].indexOf(typeOfPath) >= 0
@@ -55,6 +49,25 @@ module.exports = class Route
       return true if isPathSame || isRelativePathSame
 
     false
+
+  toRenderMethodName: ->
+    pathSegments = @path.split('/').map (segment) ->
+      return segment if segment.length == 0
+      segment[0].toUpperCase() + segment.slice(1)
+
+    'render' + pathSegments.join('')
+
+  toRoutesLookup: (routes = {}) ->
+    @_routesIsAnObject(routes)
+    routes[@path] = @toRenderMethodName()
+    routes = route.toRoutesLookup(routes) for route in @children
+    routes
+
+  _routesIsAnObject: (routes) ->
+    isntAnObject = typeof(routes) != 'object'
+    isAnArray = routes instanceof Array
+    if isntAnObject || isAnArray
+      throw new Error("Route.toRoutesLookup: expected routes to be an object, was a #{typeof(routes)}.")
 
   # private ---
 

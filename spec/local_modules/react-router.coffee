@@ -198,6 +198,34 @@ describe 'react-router-wrapper/route.coffee', ->
 
     ['foo', 123, new Array(), []].forEach (value) ->
       it "should not be able to accept a #{typeof(value)}", ->
-        expect(route.toRoutesLookup).withArgs(value).to.throwException(/expected routes to be an object/)
+        expect(-> route.toRoutesLookup(value)).to.throwException(/expected routes to be an object/)
+
+  context '@nestedRoute(path)', ->
+    context 'single nested routes', ->
+      route = null
+
+      beforeEach ->
+        route = Route.nestedRoute('foo')
+
+      it 'should return the last path segment as a route', ->
+        expect(route.relativePath).to.equal('/foo')
+
+      it 'should contain the full path in @path', ->
+        expect(route.path).to.equal('/foo')
+
+    context 'deeply nesting routes', ->
+      route = null
+
+      beforeEach ->
+        route = Route.nestedRoute('foo/bar/baz')
+
+      it 'should return the last path segment as a route', ->
+        expect(route.relativePath).to.equal('/baz')
+
+      it 'should contain the full path in @path', ->
+        expect(route.path).to.equal('/foo/bar/baz')
+
+  context 'do', ->
+
 
 

@@ -3,15 +3,30 @@ normalizeUrl = require('normalizeurl')
 
 module.exports = class Route
   @normalizePath: (path) ->
-    return path if path == ''
-    path = "/#{path}" if (path.length > 0) && path[0] != '/'
-    normalizeUrl(path)
+    newPath = normalizeUrl("/#{path}")
+    if newPath.slice(0, 2) == "//"
+      newPath = newPath.slice(1)
+    newPath
 
-  constructor: (@parent = null, relativePath = '/', @onPathHitCallback = null) ->
+  @nestedRoute: (path) ->
+    segments = path.split('/')
+    segments = [path] unless segments.length > 0
+    lastRoute = null
+    for segment in segments
+      lastRoute = new Route(lastRoute, segment)
+
+    lastRoute
+
+  constructor: (@parent = null, relativePath = '', @onPathHitCallback = null) ->
     typeOfPath = typeof(relativePath)
     if ['number', 'object', 'function'].indexOf(typeOfPath) >= 0
       throw new Error(
         "Route.new: expected relativePath to be a string, got a #{typeOfPath}: #{relativePath}."
+      )
+
+    if relativePath.indexOf("/") >= 0
+      throw new Error(
+        "Route.new: expected relativePath not contain any slashes ("/"), got a \"#{relativePath}\"."
       )
 
     @relativePath = Route.normalizePath(relativePath)

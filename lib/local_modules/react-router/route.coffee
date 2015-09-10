@@ -2,6 +2,7 @@
 normalizeUrl = require('normalizeurl')
 
 module.exports = class Route
+  # Statics ---
   @normalizePath: (path) ->
     newPath = normalizeUrl("/#{path}")
     if newPath.slice(0, 2) == "//"
@@ -17,12 +18,14 @@ module.exports = class Route
 
     lastRoute
 
+
+  # Public member variables ---
+
+  children: []
+
+
   constructor: (@parent = null, relativePath = '', @onPathHitCallback = null) ->
-    typeOfPath = typeof(relativePath)
-    if ['number', 'object', 'function'].indexOf(typeOfPath) >= 0
-      throw new Error(
-        "Route.new: expected relativePath to be a string, got a #{typeOfPath}: #{relativePath}."
-      )
+    @_validatePathIsString(relativePath)
 
     if relativePath.indexOf("/") >= 0
       throw new Error(
@@ -30,8 +33,6 @@ module.exports = class Route
       )
 
     @relativePath = Route.normalizePath(relativePath)
-
-    @children = []
 
     if @parent?
       newPath = @parent._add(@)
@@ -41,6 +42,7 @@ module.exports = class Route
         @parent = null
     else
       @path = @relativePath
+
 
   hasMatchingRoute: (matchRoute) ->
     unless matchRoute instanceof Route
@@ -79,13 +81,23 @@ module.exports = class Route
       routes = route.toRoutesLookup(routes)
     routes
 
+  do: (blockCallback) ->
+    blockCallback.call(this)
+
+  # private ---
+
+  _validatePathIsString: (path) ->
+    typeOfPath = typeof(path)
+    if ['number', 'object', 'function'].indexOf(typeOfPath) >= 0
+      throw new Error(
+        "Route.new: expected relativePath to be a string, got a #{typeOfPath}: #{path}."
+      )
+
   _routesIsAnObject: (routes) ->
     isntAnObject = typeof(routes) != 'object'
     isAnArray = routes instanceof Array
     if isntAnObject || isAnArray
       throw new Error("Route.toRoutesLookup: expected routes to be an object, was a #{typeof(routes)}.")
-
-  # private ---
 
   _add: (childRoute) ->
     unless childRoute instanceof Route

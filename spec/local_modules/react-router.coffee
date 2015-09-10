@@ -110,7 +110,7 @@ describe 'react-router-wrapper/route.coffee', ->
         new Route(route, 'test')
         expect(route._add(new Route(null, 'test'))).to.equal(false)
 
-  context 'hasMatchingRoute(matchRoute)', ->
+  xcontext 'hasMatchingRoute(matchRoute)', ->
     route = null
 
     beforeEach ->
@@ -134,7 +134,7 @@ describe 'react-router-wrapper/route.coffee', ->
       bazRoute = new Route(route, 'baz')
       expect(route.hasMatchingRoute(bazRoute)).to.equal(true)
 
-  context 'hasMatchingPath(path)', ->
+  xcontext 'hasMatchingPath(path)', ->
     route = null
 
     beforeEach ->
@@ -153,7 +153,7 @@ describe 'react-router-wrapper/route.coffee', ->
       new Route(route, 'baz')
       expect(route.hasMatchingPath('baz')).to.equal(true)
 
-  context 'toRenderMethodName', ->
+  xcontext 'toRenderMethodName', ->
     route = null
 
     beforeEach ->
@@ -172,7 +172,7 @@ describe 'react-router-wrapper/route.coffee', ->
       methodName = child.toRenderMethodName()
       expect(methodName).to.equal('renderFooBar')
 
-  context 'toRoutesLookup', ->
+  xcontext 'toRoutesLookup', ->
     route = null
 
     beforeEach ->
@@ -196,7 +196,7 @@ describe 'react-router-wrapper/route.coffee', ->
       it "should not be able to accept a #{typeof(value)}", ->
         expect(-> route.toRoutesLookup(value)).to.throwException(/expected routes to be an object/)
 
-  context '@nestedRoute(path)', ->
+  xcontext '@nestedRoute(path)', ->
     context 'single nested routes', ->
       route = null
 
@@ -221,7 +221,13 @@ describe 'react-router-wrapper/route.coffee', ->
       it 'should contain the full path in @path', ->
         expect(route.path).to.equal('/foo/bar/baz')
 
-  context 'do', ->
+  xcontext 'do', ->
+    it 'should preserve the `this` in the do method', ->
+      route = new Route(null, 'foo')
+      innerThis = null
+      route.do ->
+        innerThis = this
+      expect(innerThis).to.equal(route)
 
 
 

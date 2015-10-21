@@ -19,17 +19,12 @@ module.exports = class Route
     lastRoute
 
 
-  # Public member variables ---
-
-  children: []
-
-
   constructor: (@parent = null, relativePath = '', @onPathHitCallback = null) ->
     @_validatePathIsString(relativePath)
 
     if relativePath.indexOf("/") >= 0
       throw new Error(
-        "Route.new: expected relativePath not contain any slashes ("/"), got a \"#{relativePath}\"."
+        "new Route: expected relativePath not contain any slashes ("/"), got a \"#{relativePath}\"."
       )
 
     @relativePath = Route.normalizePath(relativePath)
@@ -42,6 +37,12 @@ module.exports = class Route
         @parent = null
     else
       @path = @relativePath
+
+    @children = []
+
+
+  childRouteWithPath: (path) ->
+    # ...
 
 
   hasMatchingRoute: (matchRoute) ->
@@ -108,8 +109,8 @@ module.exports = class Route
     if childRoute.path == '//'
       throw new Error("Route.add: expected childRoute to have a path, cannot nest a \"/\" into a \"/\" Route.")
 
-    return false if @hasMatchingPath(childRoute.path)
-    return false if @hasMatchingRoute(childRoute)
+    if @hasMatchingPath(childRoute.path) || @hasMatchingRoute(childRoute)
+      throw new Error("Route.add: cannot duplicate a route or path.")
 
     @children.push childRoute
 
